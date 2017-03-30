@@ -41,13 +41,13 @@ import android.view.View;
 public class StepIndicator extends View {
 
     private static final int DEFAULT_STEP_RADIUS = 16;   //DP
-    private static final int DEFAULT_STOKE_WIDTH = 6;  //DP
+    private static final int DEFAULT_STOKE_WIDTH = 2;  //DP
     private static final int DEFAULT_STEP_COUNT = 4;  //DP
-    private static final int DEFAULT_BACKGROUND_COLOR = R.color.background_default;
-    private static final int DEFAULT_STEP_COLOR = R.color.step_default;
-    private static final int DEFAULT_CURRENT_STEP_COLOR = R.color.current_step_default;
-    private static final int DEFAULT_TEXT_COLOR = R.color.text_default;
-    private static final int DEFAULT_SECONDARY_TEXT_COLOR = R.color.secondary_text_default;
+    private static final int DEFAULT_BACKGROUND_COLOR = R.color.soft_white;
+    private static final int DEFAULT_STEP_COLOR = R.color.soft_blue;
+    private static final int DEFAULT_CURRENT_STEP_COLOR = R.color.soft_white;
+    private static final int DEFAULT_TEXT_COLOR = R.color.soft_blue;
+    private static final int DEFAULT_SECONDARY_TEXT_COLOR = R.color.soft_white;
 
     private int radius;
     private int strokeWidth;
@@ -120,7 +120,7 @@ public class StepIndicator extends View {
         pText = new Paint();
         paint.setColor(stepColor);
         paint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        paint.setStrokeWidth(radius * 80 / 100);
+        paint.setStrokeWidth(radius * 20 / 100);
         pStoke.setColor(stepColor);
         pStoke.setStrokeWidth(strokeWidth);
         pStoke.setStyle(Paint.Style.STROKE);
@@ -251,7 +251,7 @@ public class StepIndicator extends View {
         /** draw Line */
         for (int i = 0; i < stepsCount - 1; i++) {
             if (i < currentStepPosition) {
-                paint.setColor(stepColor);
+                paint.setColor(backgroundColor);
                 canvas.drawLine(pointX, centerY, pointX + stepDistance, centerY, paint);
             } else if (i == currentStepPosition) {
                 paint.setColor(backgroundColor);
@@ -271,7 +271,7 @@ public class StepIndicator extends View {
                 if (offsetPixel < 0) {
                     paint.setColor(backgroundColor);
                 } else {
-                    paint.setColor(stepColor);
+                    paint.setColor(backgroundColor);
                 }
                 canvas.drawLine(pointOffset, centerY, drawOffset, centerY, paint);
             }
@@ -284,46 +284,51 @@ public class StepIndicator extends View {
                 //draw previous step
                 paint.setColor(stepColor);
                 canvas.drawCircle(pointX, centerY, radius, paint);
+                canvas.drawCircle(pointX, centerY, radius, pStoke);
 
+                pText.setColor(secondaryTextColor);
                 //draw transition
-                if (i == currentStepPosition - 1 && offsetPixel < 0 && pagerScrollState == 1) {
-                    pStoke.setAlpha(255);
-                    pStoke.setStrokeWidth(strokeWidth - Math.round(strokeWidth * offset));
-                    canvas.drawCircle(pointX, centerY, radius, pStoke);
-                }
+//                if (i == currentStepPosition - 1 && offsetPixel < 0 && pagerScrollState == 1) {
+//                    pStoke.setAlpha(255);
+//                    pStoke.setStrokeWidth(strokeWidth - Math.round(strokeWidth * offset));
+//                    canvas.drawCircle(pointX, centerY, radius, pStoke);
+//                }
                 pText.setColor(secondaryTextColor);
             } else if (i == currentStepPosition) {
                 //draw current step
-                if (offsetPixel == 0 || pagerScrollState == 0) {
-                    //set stroke default
+//                if (offsetPixel == 0 || pagerScrollState == 0) {
+//                    //set stroke default
                     paint.setColor(currentColor);
                     pStoke.setStrokeWidth(Math.round(strokeWidth));
                     pStoke.setAlpha(255);
-                } else if (offsetPixel < 0) {
-                    pStoke.setStrokeWidth(Math.round(strokeWidth * offset));
-                    pStoke.setAlpha(Math.round(offset * 255f));
-                    paint.setColor(getColorToBG(offset));
-                } else {
-                    //set stroke transition
-                    paint.setColor(getColorToProgress(offset));
-                    pStoke.setStrokeWidth(strokeWidth - Math.round(strokeWidth * offset));
-                    pStoke.setAlpha(255 - Math.round(offset * 255f));
-                }
+//                } else if (offsetPixel < 0) {
+//                    pStoke.setStrokeWidth(Math.round(strokeWidth * offset));
+////                    pStoke.setAlpha(Math.round(offset * 255f));
+////                    paint.setColor(getColorToBG(offset));
+//                } else {
+//                    //set stroke transition
+////                    paint.setColor(getColorToProgress(offset));
+//                    pStoke.setStrokeWidth(strokeWidth - Math.round(strokeWidth * offset));
+////                    pStoke.setAlpha(255 - Math.round(offset * 255f));
+//                }
                 canvas.drawCircle(pointX, centerY, radius, paint);
                 canvas.drawCircle(pointX, centerY, radius, pStoke);
                 pText.setColor(textColor);
             } else {
                 //draw next step
-                paint.setColor(backgroundColor);
+                paint.setColor(stepColor);
+                pStoke.setColor(backgroundColor);
                 canvas.drawCircle(pointX, centerY, radius, paint);
+                canvas.drawCircle(pointX, centerY, radius, pStoke);
+
                 pText.setColor(secondaryTextColor);
 
                 //draw transition
-                if (i == currentStepPosition + 1 && offsetPixel > 0 && pagerScrollState == 1) {
-                    pStoke.setStrokeWidth(Math.round(strokeWidth * offset));
-                    pStoke.setAlpha(Math.round(offset * 255f));
-                    canvas.drawCircle(pointX, centerY, radius, pStoke);
-                }
+//                if (i == currentStepPosition + 1 && offsetPixel > 0 && pagerScrollState == 1) {
+//                    pStoke.setStrokeWidth(Math.round(strokeWidth * offset));
+//                    pStoke.setAlpha(Math.round(offset * 255f));
+//                    canvas.drawCircle(pointX, centerY, radius, pStoke);
+//                }
             }
             drawTextCentred(canvas, pText, String.valueOf(i + 1), pointX, centerY);
             pointX = pointX + stepDistance;
@@ -345,14 +350,14 @@ public class StepIndicator extends View {
         return Color.HSVToColor(hsv);
     }
 
-    private int getColorToProgress(float offset) {
-        offset = Math.abs(offset);
-        float[] hsv = new float[3];
-        hsv[0] = hsvCurrent[0] + (hsvProgress[0] - hsvCurrent[0]) * offset;
-        hsv[1] = hsvCurrent[1] + (hsvProgress[1] - hsvCurrent[1]) * offset;
-        hsv[2] = hsvCurrent[2] + (hsvProgress[2] - hsvCurrent[2]) * offset;
-        return Color.HSVToColor(hsv);
-    }
+//    private int getColorToProgress(float offset) {
+//        offset = Math.abs(offset);
+//        float[] hsv = new float[3];
+//        hsv[0] = hsvCurrent[0] + (hsvProgress[0] - hsvCurrent[0]) * offset;
+//        hsv[1] = hsvCurrent[1] + (hsvProgress[1] - hsvCurrent[1]) * offset;
+//        hsv[2] = hsvCurrent[2] + (hsvProgress[2] - hsvCurrent[2]) * offset;
+//        return Color.HSVToColor(hsv);
+//    }
 
     private void setOffset(float offset, int position) {
         this.offset = offset;
